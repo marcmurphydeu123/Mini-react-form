@@ -10,13 +10,11 @@ import { createStore } from 'redux';
 import reducers from './reducers';
 
 ReactDOM.render(
-  <React.StrictMode>
     <BrowserRouter>
       <Provider store={createStore(reducers)}>
         <App />
       </Provider>
-    </BrowserRouter>
-  </React.StrictMode>,
+    </BrowserRouter>,
   document.getElementById('root')
 );
 

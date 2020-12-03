@@ -2,91 +2,94 @@ import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button'
 import { Col, Row, Form } from "react-bootstrap";
 import { withRouter } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { updateState } from '../actions/index'
-import NavDropdown from 'react-bootstrap/NavDropdown'
-import Dropdown from '../components/Dropdown';
+import {Field, reduxForm} from 'redux-form'
+
 
 const MiniForm = (props) => {
-
-    // Set up state hook
+    // Set up state hook and dropdown values
     const [errors, setErros] = useState([]) 
-
-    // Update the state with the new input value
-    const handleChange = (e) => {
-        let id = e.target.id 
-        let value = e.target.value
-        props.updateState(id, value)
-    }
+    const userTitles = ['Mr.', 'Mrs.', 'Miss.', 'Sir.', 'Dr.']
 
     // Navigate to next page if there's no erros
-    const handleSubmit = (e) =>{
-        e.preventDefault()
-        if (checkValidity()){
+    const handleSubmit = (state) =>{
+        if (checkValidity(state)){
             props.history.push('/user')
         }
     }
 
     // Validate the form inputs
-    const checkValidity = () => {
+    const checkValidity = (state) => {
         let errors = []
-        if (props.formState.firstName === ''){
+        if (!state.firstName){
             errors.push("firstName")
         }
-        if (props.formState.lastName === ''){
+        if (!state.lastName){
             errors.push('lastName')
         }
-        if(props.formState.email === ''){
+        if(!state.email){
             errors.push("email")  // There's also a default error check
         }
         setErros(errors)
         return errors.length ? false : true;
     }
 
+
+    // Represents an input field component
+    const renderInput = ({input, label})=>{
+        return (
+            <div className="field">
+                <Form.Label>{label}</Form.Label>
+                <Form.Control id={label} 
+                                {...input}
+                                isInvalid = {errors.includes(input.name) ? true: false }
+                                type="text"/>
+            </div>
+        )
+    }
+
+    // Render the dropdown
+    const RenderDropdown = () => {
+        return (
+            <div>
+                <label>Title</label>
+                <div>
+                <Field name="title" component="select">
+                    {userTitles.map(title=> {
+                        return (<option value={title}>{title}</option>)
+                    })}
+                </Field>
+                </div>
+            </div>
+        )
+    }
+
     return (
-            <Form style={{margin:20}} onSubmit={(e) => handleSubmit(e)}>
+            <Form style={{margin:20}} onSubmit={props.handleSubmit(handleSubmit)}>
+
                 <Row style ={{marginTop: 10}}>
                     <Col xs={3}>
-                        <Form.Label>Title *</Form.Label>
-                        <Dropdown updateState = {props.updateState} />
+                        <RenderDropdown/>
                     </Col>
                     <Col xs={3}>
-                        <Form.Label>First Name * </Form.Label>
-                        <Form.Control id="firstName" 
-                                      onChange={(e)=> handleChange(e)} 
-                                      isInvalid = {errors.includes("firstName") ? true: false }
-                                      type="text"/>
+                        <Field name = "firstName" component ={renderInput} label="First Name *" />
                     </Col>
                 </Row>
                 <Row style ={{marginTop: 10}}>
                     <Col xs={3}>
-                        <Form.Label>Middle Name (optional)</Form.Label>
-                        <Form.Control id="middleName" 
-                                      onChange={(e)=> handleChange(e)} 
-                                      type="text"/>
+                        <Field name = "middleName" component ={renderInput} label="Middle Name (optional)" />
                     </Col>
                     <Col xs={3}>
-                        <Form.Label>Last Name *</Form.Label>
-                        <Form.Control isInvalid = {errors.includes("lastName") ? true: false }
-                                      id="lastName" 
-                                      onChange={(e)=> handleChange(e)} 
-                                      type="text"/>
+                        <Field name = "lastName" component ={renderInput} label="Last Name *" />
                     </Col>
                 </Row>
                 <Row style ={{marginTop: 10}}>
                     <Col xs={6}>
-                            <Form.Label>Email address *</Form.Label>
-                            <Form.Control id="email" 
-                                          onChange={(e)=> handleChange(e)} 
-                                          type="email" 
-                                          placeholder="Enter email" 
-                                          isInvalid = {errors.includes("email") ? true: false } />
+                        <Field name = "email" component ={renderInput} label="Email *" />
                     </Col>
                 </Row>
                 <Row style ={{marginTop: 10}}>
                     <Col xs={6}>
-                        <Form.Label>Phone Number (optional) </Form.Label>
-                        <Form.Control id="phoneNumber" onChange={(e)=> handleChange(e)} type="tel"/>
+                        <Field name = "phoneNumber" component ={renderInput} label="Phone Number (optional)" />
                     </Col>
                 </Row>
                 <Row style ={{marginTop: 10}}>
@@ -96,15 +99,13 @@ const MiniForm = (props) => {
                         </Button>
                     </Col>
                     
-                </Row>
+                </Row> 
                 
                 
             </Form>
     )
 }
 
-const mapStateToProps = (state) => {
-    return {formState: state.formState}
-}
-
-export default connect(mapStateToProps,{ updateState })(withRouter(MiniForm))
+export default reduxForm({
+    form: 'miniForm'
+})(withRouter(MiniForm))
