@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button'
-import { Col, Row, Form } from "react-bootstrap";
+import { Col, Form } from "react-bootstrap";
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { updateState } from '../actions/index'
-import NavDropdown from 'react-bootstrap/NavDropdown'
+import InputField from '../components/InputField';
+import styled from 'styled-components';
 import Dropdown from '../components/Dropdown';
+
 
 const MiniForm = (props) => {
 
@@ -13,9 +15,16 @@ const MiniForm = (props) => {
     const [errors, setErros] = useState([]) 
 
     // Update the state with the new input value
-    const handleChange = (e) => {
+    const handleInputChange = (e) => {
         let id = e.target.id 
         let value = e.target.value
+        props.updateState(id, value)
+    }
+
+    // Update the state with the dropdown value
+    const handleDropDownChange = (e) => {
+        let id = "title"
+        let value = e.target.innerText
         props.updateState(id, value)
     }
 
@@ -23,88 +32,148 @@ const MiniForm = (props) => {
     const handleSubmit = (e) =>{
         e.preventDefault()
         if (checkValidity()){
-            props.history.push('/user')
+            props.history.push('/confirmation')
         }
     }
+
+    // A list of the options displayed in the dropdown
+    const dropDownOptions = [
+        { key: 'Mr.', value: 'Mr.', text: 'Mr.' },
+        { key: 'Mrs.', value: 'Mrs.', text: 'Mrs.' },
+        { key: 'Miss.', value: 'Miss.', text: 'Miss.' },
+        { key: 'Sir.', value: 'Sir.', text: 'Sir.' },
+      ]
+
+    // An initial list containing the inputs for the Form
+    const formSetup = [
+        {
+            size: 6,
+            id: "firstName",
+            label: "First Name *",
+            type: "text"
+        },
+        {
+            size: 6,
+            id: "middleName",
+            label: "Middle Name (optional)",
+            type: "text"
+        },
+        {
+            size: 6,
+            id: "lastName",
+            label: "Last Name *",
+            type: "text"
+        },
+        {
+            size: 6,
+            id: "email",
+            label: "Email *",
+            type: "email"
+        },
+        {
+            size: 6,
+            id: "phoneNumber",
+            label: "Phone Number (optional)",
+            type: "tel"
+        },
+    ]
+
+    const requierdFields = ['firstName', 'lastName', 'email', 'title']
 
     // Validate the form inputs
     const checkValidity = () => {
         let errors = []
-        if (props.formState.firstName === ''){
-            errors.push("firstName")
-        }
-        if (props.formState.lastName === ''){
-            errors.push('lastName')
-        }
-        if(props.formState.email === ''){
-            errors.push("email")  // There's also a default error check
-        }
+        let isEmpty = Object.keys(props.formState).length === 0
+        console.log(props.formState)
+        requierdFields.forEach(field => {
+            if ((props.formState[field] === (''|| undefined )) || isEmpty ){
+                errors.push(field)
+            }
+        })
         setErros(errors)
         return errors.length ? false : true;
     }
 
     return (
-            <Form style={{margin:20}} onSubmit={(e) => handleSubmit(e)}>
-                <Row style ={{marginTop: 10}}>
-                    <Col xs={3}>
-                        <Form.Label>Title *</Form.Label>
-                        <Dropdown updateState = {props.updateState} />
-                    </Col>
-                    <Col xs={3}>
-                        <Form.Label>First Name * </Form.Label>
-                        <Form.Control id="firstName" 
-                                      onChange={(e)=> handleChange(e)} 
-                                      isInvalid = {errors.includes("firstName") ? true: false }
-                                      type="text"/>
-                    </Col>
-                </Row>
-                <Row style ={{marginTop: 10}}>
-                    <Col xs={3}>
-                        <Form.Label>Middle Name (optional)</Form.Label>
-                        <Form.Control id="middleName" 
-                                      onChange={(e)=> handleChange(e)} 
-                                      type="text"/>
-                    </Col>
-                    <Col xs={3}>
-                        <Form.Label>Last Name *</Form.Label>
-                        <Form.Control isInvalid = {errors.includes("lastName") ? true: false }
-                                      id="lastName" 
-                                      onChange={(e)=> handleChange(e)} 
-                                      type="text"/>
-                    </Col>
-                </Row>
-                <Row style ={{marginTop: 10}}>
+            <Container>
+                <Header>Mini Form</Header>
+                <StyledForm style={{margin:20}}>
+
+                    {/* Dropdown */}
                     <Col xs={6}>
-                            <Form.Label>Email address *</Form.Label>
-                            <Form.Control id="email" 
-                                          onChange={(e)=> handleChange(e)} 
-                                          type="email" 
-                                          placeholder="Enter email" 
-                                          isInvalid = {errors.includes("email") ? true: false } />
+                        <StyledDropdown label="Title *" 
+                                        error = {errors.includes("title") ? true:false} 
+                                        id="title" 
+                                        placeholder="Select your title" 
+                                        options={dropDownOptions} 
+                                        handleChange ={handleDropDownChange} />
                     </Col>
-                </Row>
-                <Row style ={{marginTop: 10}}>
-                    <Col xs={6}>
-                        <Form.Label>Phone Number (optional) </Form.Label>
-                        <Form.Control id="phoneNumber" onChange={(e)=> handleChange(e)} type="tel"/>
-                    </Col>
-                </Row>
-                <Row style ={{marginTop: 10}}>
-                    <Col>
-                        <Button variant="primary" type="submit">
-                                    Submit
-                        </Button>
-                    </Col>
-                    
-                </Row>
-                
-                
-            </Form>
+
+                    {/* Input fields */}
+                    {formSetup.map(formElement =>{
+                        return (
+                                <Col key={formElement.id} xs={formElement.size}>
+                                    <InputField id={formElement.id}
+                                                label={formElement.label}
+                                                key={formElement.id}
+                                                defaultValue={props.formState[formElement.id]}
+                                                onChange={(e)=> handleInputChange(e)}
+                                                isInvalid={errors.includes(formElement.id) ? true:false} 
+                                                type={formElement.type} />
+                                </Col>
+                        )
+                    })}
+
+                </StyledForm>
+                <Button variant="primary" type="submit" onClick={(e) => handleSubmit(e)}>
+                    Submit
+                </Button>
+            </Container>
     )
 }
 
 const mapStateToProps = (state) => {
     return {formState: state.formState}
 }
+
+const StyledForm = styled(Form)`
+    height: 100%;
+    display: flex;
+    align-items: center;
+    align-content: space-evenly;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-between;
+`
+
+const Header = styled.h1`
+   padding-top: 20px;
+`
+
+const StyledDropdown = styled(Dropdown)`
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+`
+
+const Container = styled.div`
+    position: absolute;
+    left: 50%;
+    height: 600px;
+    top: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-content: flex-start;
+    justify-content: flex-start;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    -webkit-box-shadow: 0px 0px 25px -1px rgba(84,84,84,0.36);
+    -moz-box-shadow: 0px 0px 25px -1px rgba(84,84,84,0.36);
+    box-shadow: 0px 0px 25px -1px rgba(84,84,84,0.36);
+    border-radius: 10px 10px 10px 10px;
+    padding: 30px;
+`
+
 
 export default connect(mapStateToProps,{ updateState })(withRouter(MiniForm))

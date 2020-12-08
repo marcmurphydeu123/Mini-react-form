@@ -1,6 +1,5 @@
 import {combineReducers} from 'redux'
 
-
 const formReducer = (formState = {}, action) => {
     if (action.type === 'UPDATE_STATE' ){
         let obj = Object.entries(action.payload)[0]

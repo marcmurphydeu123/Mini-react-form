@@ -1,26 +1,24 @@
-import React, { useState } from 'react';
-import NavDropdown from 'react-bootstrap/NavDropdown'
-import { MenuItem } from '@material-ui/core';
+import React from 'react';
+import { Select } from 'semantic-ui-react'
+import { Form } from "react-bootstrap";
+import styled from 'styled-components';
+
 
 const Dropdown = (props) => {
-
-    const userTitles = ['Mr.', 'Mrs.', 'Miss.', 'Sir.', 'Dr.']
-    const [dropdownValue, setDropdownValue] = useState(userTitles[0])
-
-    const handleDropDownChange = (e) => {
-        let id = "title"
-        let value = e.target.innerText
-        setDropdownValue(value)
-        props.updateState(id, value)
-    }
-
    return (
-    <NavDropdown title={dropdownValue} id="collasible-nav-dropdown">
-                            {userTitles.map(title => {
-                                        return <MenuItem key={title} onClick ={(e)=> handleDropDownChange(e)}>{title}</MenuItem>
-                            })}
-    </NavDropdown>
+        <StyledDropdown>
+            <Form.Label>{props.label}</Form.Label>
+            <Select placeholder={props.placeholder} onChange={e=>props.handleChange(e)} error={props.error} options={props.options} />
+        </StyledDropdown>
     )
 }
+
+
+const StyledDropdown = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+`
+
 
 export default Dropdown
