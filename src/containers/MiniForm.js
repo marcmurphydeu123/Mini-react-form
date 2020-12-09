@@ -14,6 +14,7 @@ const MiniForm = (props) => {
     // Set up state hook
     const [errors, setErros] = useState([]) 
 
+
     // Update the state with the new input value
     const handleInputChange = (e) => {
         let id = e.target.id 
@@ -79,6 +80,7 @@ const MiniForm = (props) => {
     ]
 
     const requierdFields = ['firstName', 'lastName', 'email', 'title']
+    const dropdownPlaceholder = props.formState.title ? props.formState.title : dropDownOptions[0].value
 
     // Validate the form inputs
     const checkValidity = () => {
@@ -104,7 +106,7 @@ const MiniForm = (props) => {
                         <StyledDropdown label="Title *" 
                                         error = {errors.includes("title") ? true:false} 
                                         id="title" 
-                                        placeholder="Select your title" 
+                                        placeholder={dropdownPlaceholder}
                                         options={dropDownOptions} 
                                         handleChange ={handleDropDownChange} />
                     </Col>
@@ -125,7 +127,7 @@ const MiniForm = (props) => {
                     })}
 
                 </StyledForm>
-                <Button variant="primary" type="submit" onClick={(e) => handleSubmit(e)}>
+                <Button variant="primary" size="lg" type="submit" onClick={(e) => handleSubmit(e)}>
                     Submit
                 </Button>
             </Container>
