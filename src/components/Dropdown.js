@@ -8,7 +8,10 @@ const Dropdown = (props) => {
    return (
         <StyledDropdown>
             <Form.Label>{props.label}</Form.Label>
-            <Select placeholder={props.placeholder} onChange={e=>props.handleChange(e)} error={props.error} options={props.options} />
+            <Select placeholder={props.placeholder} 
+                    onChange={e=>props.handleChange(e)} 
+                    error={props.error} 
+                    options={props.options} />
         </StyledDropdown>
     )
 }
