@@ -1,19 +1,30 @@
 import emailjs from "emailjs-com"
 import apiKeys from "../apiKeys"
-import React from 'react';
+import React, {useState} from 'react';
 import Button from 'react-bootstrap/Button'
 import { connect } from 'react-redux';
 import { updateState } from '../actions/index'
 import styled from 'styled-components';
 import Form from 'react-bootstrap/Form'
 import { withRouter } from 'react-router-dom';
+import Modal from '../components/Modal';
+
 
 const EmailForm = (props) => {
+    const [modalIsOpen,setIsOpen] = useState(false);
+    function openModal() {
+        setIsOpen(true);
+    }
+
+    function closeModal(){
+        setIsOpen(false);
+    }
+
     const onSubmit=(e)=>{
         e.preventDefault()// Prevents default refresh by the browser
         emailjs.sendForm(apiKeys.SERVICE_ID, apiKeys.TEMPLATE_ID, e.target, apiKeys.USER_ID)
         .then(result => {
-            alert('Message Sent, I\'ll get back to you shortly', result.text);
+            setIsOpen(true)
         },
         error => {
             alert( 'An error occured, Plese try again',error.text)
@@ -40,9 +51,10 @@ const EmailForm = (props) => {
                     <StyledButton variant="secondary" onClick={e=>{props.history.push('/user')}} size="lg">
                         Cancel
                     </StyledButton>
-                    <StyledButton variant="primary" size="lg" type="submit">
-                        Send Email
-                    </StyledButton>
+                    <Modal modalIsOpen ={modalIsOpen} 
+                           closeModal = {closeModal}
+                           openModal = {openModal}
+                           setIsOpen={setIsOpen} text =" Send email "/>
                 </ButtonRow>
             </StyledForm>
         </Container>
@@ -64,6 +76,7 @@ const StyledForm = styled(Form)`
 const ButtonRow = styled.div`
     display: flex;
     justify-content: space-between;
+    align-items: baseline;
 `
 
 const Header = styled.h1`
